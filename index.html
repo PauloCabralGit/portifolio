@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paulo Cabral — Engenheiro de QA Sênior</title>
+<meta name="description" content="Portfólio de Paulo Cabral, Engenheiro de QA Sênior especializado em automação de testes web, mobile, API e Salesforce.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #EEEAE0;
+    --panel: #E2DDCE;
+    --panel-line: #C7C0AC;
+    --ink: #1A211D;
+    --ink-soft: #4B5750;
+    --pass: #2F6F5E;
+    --pass-soft: #DCE6E0;
+    --running: #B8863B;
+    --running-soft: #EFE1C6;
+    --rule: #B9B2A0;
+    --max: 760px;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', -apple-system, sans-serif;
+    font-size:16px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{ font-family:'IBM Plex Mono', ui-monospace, monospace; }
+
+  a{ color:inherit; }
+
+  ::selection{ background:var(--pass); color:var(--paper); }
+
+  .wrap{
+    max-width: var(--max);
+    margin:0 auto;
+    padding: 0 28px;
+  }
+
+  /* ---------- Skip / focus ---------- */
+  a:focus-visible, button:focus-visible{
+    outline: 2px solid var(--pass);
+    outline-offset: 3px;
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    position: sticky; top:0; z-index: 20;
+    background: rgba(238,234,224,0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .topbar-inner{
+    max-width: var(--max);
+    margin:0 auto;
+    padding: 14px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .brand{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .brand .dot{ color: var(--pass); }
+  .topnav{ display:flex; gap: 20px; font-size: 14px; }
+  .topnav a{ text-decoration:none; color:var(--ink-soft); }
+  .topnav a:hover{ color:var(--ink); }
+  .topnav-toggle{ display:none; background:none; border:1px solid var(--rule); border-radius:4px; padding:6px 10px; font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--ink); }
+
+  @media (max-width: 620px){
+    .topnav{ display:none; }
+    .topnav.open{
+      display:flex; flex-direction:column; gap:2px;
+      position:absolute; top:100%; left:0; right:0;
+      background:var(--paper); border-bottom:1px solid var(--rule);
+      padding: 8px 28px 16px;
+    }
+    .topnav.open a{ padding:8px 0; border-bottom:1px solid var(--panel-line); }
+    .topnav-toggle{ display:inline-block; }
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{ padding: 64px 0 40px; }
+  .hero-eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin: 0 0 14px;
+  }
+  .hero-eyebrow .caret{
+    display:inline-block;
+    width: 8px; height: 15px;
+    background: var(--pass);
+    vertical-align: -2px;
+    margin-left: 2px;
+    animation: blink 1.1s steps(1) infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+  @media (prefers-reduced-motion: reduce){ .hero-eyebrow .caret{ animation:none; } }
+
+  h1.name{
+    font-size: clamp(38px, 7vw, 56px);
+    line-height: 1.05;
+    margin: 0 0 6px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .role{
+    font-size: clamp(17px, 2.6vw, 20px);
+    color: var(--ink-soft);
+    margin: 0 0 28px;
+    max-width: 480px;
+  }
+
+  .contact-line{
+    display:flex; flex-wrap:wrap; gap: 6px 18px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    margin-bottom: 34px;
+  }
+  .contact-line a{ text-decoration:none; border-bottom: 1px solid var(--panel-line); }
+  .contact-line a:hover{ border-color: var(--ink); color: var(--ink); }
+
+  /* run summary */
+  .run{
+    border: 1px solid var(--panel-line);
+    background: var(--panel);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .run-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--panel-line);
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+  }
+  .run-head .ok{ color: var(--pass); font-weight:600; }
+  .run-list{ list-style:none; margin:0; padding: 6px 0; }
+  .run-list li{
+    display:flex; align-items:baseline; gap:10px;
+    padding: 9px 16px;
+    font-size: 14.5px;
+  }
+  .run-list li + li{ border-top: 1px dashed var(--panel-line); }
+  .run-list .chk{
+    color: var(--pass);
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600;
+    flex-shrink:0;
+  }
+  .run-list .desc{ color: var(--ink); }
+  .run-list .val{ color: var(--ink-soft); font-family:'IBM Plex Mono', monospace; font-size:13px; }
+
+  /* ---------- Section shell ---------- */
+  section{ padding: 46px 0; border-top: 1px solid var(--rule); }
+  .sec-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--pass);
+    margin: 0 0 6px;
+  }
+  .sec-title{
+    font-size: clamp(22px, 4vw, 28px);
+    margin: 0 0 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .lede{ color: var(--ink-soft); max-width: 62ch; }
+
+  /* ---------- Experience ---------- */
+  .job{
+    border: 1px solid var(--panel-line);
+    border-radius: 6px;
+    margin-bottom: 16px;
+    background: var(--paper);
+  }
+  .job-head{
+    display:flex; align-items:flex-start; justify-content:space-between; gap: 12px;
+    padding: 16px 18px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .job-head h3{
+    margin: 0 0 4px;
+    font-size: 17px;
+    font-weight: 600;
+  }
+  .job-company{
+    font-size: 14.5px;
+    color: var(--ink-soft);
+  }
+  .job-meta{ text-align:right; flex-shrink:0; }
+  .status{
+    display:inline-block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 3px;
+    letter-spacing: 0.01em;
+    white-space:nowrap;
+  }
+  .status.done{ color: var(--pass); background: var(--pass-soft); }
+  .status.running{ color: var(--running); background: var(--running-soft); }
+  .job-dates{
+    display:block;
+    margin-top: 6px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+  }
+  .job-toggle{
+    font-family:'IBM Plex Mono', monospace;
+    color: var(--ink-soft);
+    font-size: 13px;
+    margin-left: 4px;
+  }
+  .job-body{
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.28s ease;
+  }
+  .job-body ul{
+    margin: 0; padding: 0 18px 18px 34px;
+    color: var(--ink-soft);
+    font-size: 14.5px;
+  }
+  .job-body li{ margin-bottom: 6px; }
+  .job.open .job-body{ max-height: 400px; }
+  .job.open .job-toggle{ transform: rotate(45deg); display:inline-block; }
+
+  /* ---------- Skills ---------- */
+  .skill-group{ margin-bottom: 20px; }
+  .skill-group:last-child{ margin-bottom:0; }
+  .skill-group-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin: 0 0 10px;
+  }
+  .skill-group-label::after{ content: ":"; }
+  .tags{ display:flex; flex-wrap:wrap; gap: 8px; }
+  .tag{
+    font-size: 13.5px;
+    padding: 6px 11px;
+    border: 1px solid var(--panel-line);
+    border-radius: 4px;
+    background: var(--panel);
+    color: var(--ink);
+  }
+
+  .soft-skills{
+    margin-top: 30px;
+    padding-top: 24px;
+    border-top: 1px dashed var(--panel-line);
+    color: var(--ink-soft);
+    font-size: 14.5px;
+    line-height: 1.9;
+  }
+  .soft-skills strong{ color: var(--ink); }
+
+  /* ---------- Education / certs ---------- */
+  .grid-2{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+  @media (max-width: 640px){ .grid-2{ grid-template-columns: 1fr; gap: 28px; } }
+  .edu-item{ margin-bottom: 14px; }
+  .edu-item h4{ margin: 0 0 2px; font-size:15.5px; font-weight:600; }
+  .edu-item p{ margin:0; font-size: 13.5px; color: var(--ink-soft); }
+  .courses-list{ list-style:none; margin:0; padding:0; }
+  .courses-list li{
+    font-size: 14px;
+    padding: 7px 0;
+    border-bottom: 1px dashed var(--panel-line);
+    color: var(--ink-soft);
+  }
+  .courses-list li::before{
+    content: "▸ ";
+    color: var(--pass);
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .langs{ display:flex; gap: 22px; margin-top: 18px; flex-wrap:wrap; }
+  .lang{ font-size: 14px; }
+  .lang .lvl{ display:block; font-family:'IBM Plex Mono', monospace; font-size:12px; color: var(--pass); margin-top:2px; }
+
+  /* ---------- Contact / footer ---------- */
+  .contact-card{
+    border: 1px solid var(--panel-line);
+    background: var(--panel);
+    border-radius: 6px;
+    padding: 28px;
+    display:flex;
+    flex-wrap:wrap;
+    gap: 24px;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .contact-card p{ margin:0; max-width: 34ch; color: var(--ink-soft); font-size: 14.5px; }
+  .btn-row{ display:flex; gap: 10px; flex-wrap:wrap; }
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    text-decoration:none;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 13.5px;
+    font-weight:600;
+    padding: 10px 16px;
+    border-radius: 5px;
+    border: 1px solid var(--ink);
+    color: var(--paper);
+    background: var(--ink);
+    white-space:nowrap;
+  }
+  .btn.ghost{
+    background: transparent;
+    color: var(--ink);
+  }
+  .btn:hover{ opacity: 0.85; }
+
+  footer{
+    padding: 30px 0 50px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">paulo_cabral<span class="dot">.</span>qa</div>
+    <nav class="topnav" id="topnav">
+      <a href="#sobre">sobre</a>
+      <a href="#experiencia">experiência</a>
+      <a href="#habilidades">habilidades</a>
+      <a href="#formacao">formação</a>
+      <a href="#contato">contato</a>
+    </nav>
+    <button class="topnav-toggle" id="navToggle" aria-label="Abrir menu">menu</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <section class="hero" id="topo" style="border-top:none;">
+    <p class="hero-eyebrow">$ whoami<span class="caret"></span></p>
+    <h1 class="name">Paulo Cabral</h1>
+    <p class="role">Engenheiro de QA Sênior — automação de testes web, mobile, API e Salesforce.</p>
+
+    <div class="contact-line">
+      <span>São José dos Pinhais, PR, Brasil</span>
+      <a href="mailto:paulocabral_90@hotmail.com">paulocabral_90@hotmail.com</a>
+      <a href="tel:+5541996816096">+55 (41) 99681-6096</a>
+      <a href="https://linkedin.com/in/paulo-cabral-qasenior" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://github.com/PauloCabralGit" target="_blank" rel="noopener">GitHub</a>
+    </div>
+
+    <div class="run">
+      <div class="run-head">
+        <span>test_run — carreira.suite</span>
+        <span class="ok">5 passed, 0 failed</span>
+      </div>
+      <ul class="run-list">
+        <li><span class="chk">✓</span><span class="desc">15 anos de experiência em Quality Assurance</span></li>
+        <li><span class="chk">✓</span><span class="desc">Automação ponta a ponta</span><span class="val">Robot Framework · Cypress · Playwright · Selenium · Appium</span></li>
+        <li><span class="chk">✓</span><span class="desc">Testes funcionais, regressão, API, performance e segurança</span></li>
+        <li><span class="chk">✓</span><span class="desc">Experiência com Salesforce</span><span class="val">administração, configuração, ADM201</span></li>
+        <li><span class="chk">✓</span><span class="desc">Bacharel em Análise e Desenvolvimento de Sistemas</span><span class="val">UNINTER, 2020</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="sobre">
+    <p class="sec-label">// sobre</p>
+    <h2 class="sec-title">Resumo profissional</h2>
+    <p class="lede">
+      Profissional sênior de Quality Assurance com 15 anos de experiência em testes de software, atuando em aplicações
+      web, mobile, API e backend. Forte atuação em testes manuais e automatizados — funcionais, de integração,
+      regressão, performance, segurança e usabilidade — com Robot Framework, Cypress, Playwright, Selenium e Appium.
+      Também traz experiência prática com Salesforce, incluindo administração e configuração, além de conhecimento
+      em Jira, Postman, Swagger, Azure, AWS, Docker Compose e bancos de dados.
+    </p>
+  </section>
+
+  <section id="experiencia">
+    <p class="sec-label">// experiência</p>
+    <h2 class="sec-title">Histórico profissional</h2>
+
+    <div class="job open">
+      <div class="job-head" role="button" tabindex="0">
+        <div>
+          <h3>Analista de Qualidade Sênior</h3>
+          <div class="job-company">Zup Innovation</div>
+        </div>
+        <div class="job-meta">
+          <span class="status running">EM EXECUÇÃO</span>
+          <span class="job-dates">Fev. 2024 — Set. 2026 <span class="job-toggle">＋</span></span>
+        </div>
+      </div>
+      <div class="job-body">
+        <ul>
+          <li>Testes de software manuais e automatizados utilizando Robot Framework.</li>
+          <li>Criação e execução de planos e cenários de teste.</li>
+          <li>Testes de regressão, API, web e mobile.</li>
+          <li>Desenvolvimento e manutenção de cenários de testes automatizados.</li>
+          <li>Atuação com Docker Compose, AWS, ferramentas de IA e bancos de dados.</li>
+          <li>Colaboração com equipes de desenvolvimento e produto para garantir a qualidade do software.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="job">
+      <div class="job-head" role="button" tabindex="0">
+        <div>
+          <h3>Analista de Qualidade Sênior</h3>
+          <div class="job-company">Hypeone</div>
+        </div>
+        <div class="job-meta">
+          <span class="status done">CONCLUÍDO</span>
+          <span class="job-dates">Jan. 2024 — Jun. 2024 <span class="job-toggle">＋</span></span>
+        </div>
+      </div>
+      <div class="job-body">
+        <ul>
+          <li>Automação de cenários de teste utilizando Cypress.</li>
+          <li>Criação de scripts de teste BDD e dados de teste automatizados.</li>
+          <li>Implementação de ferramentas e processos de QA com Jira/QAlity.</li>
+          <li>Criação e gerenciamento de cards Kanban no Jira.</li>
+          <li>Apoio na melhoria dos processos de QA e execução de testes.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="job">
+      <div class="job-head" role="button" tabindex="0">
+        <div>
+          <h3>Engenheiro Sênior de Automação de QA | Robot Framework</h3>
+          <div class="job-company">Talent Four Consulting</div>
+        </div>
+        <div class="job-meta">
+          <span class="status done">CONCLUÍDO</span>
+          <span class="job-dates">Dez. 2022 — Dez. 2023 <span class="job-toggle">＋</span></span>
+        </div>
+      </div>
+      <div class="job-body">
+        <ul>
+          <li>Desenvolvimento de testes automatizados utilizando Robot Framework.</li>
+          <li>Criação de cenários BDD e scripts de teste.</li>
+          <li>Validação de cenários de teste em ambientes QA/UAT.</li>
+          <li>Criação e manutenção de cenários de teste utilizando Azure.</li>
+          <li>Análise de documentação técnica e de negócio.</li>
+          <li>Registro e acompanhamento de defeitos de software.</li>
+          <li>Criação de dados de teste, manuais de teste e documentação de treinamento.</li>
+          <li>Análise de impacto para alterações em produção.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="job">
+      <div class="job-head" role="button" tabindex="0">
+        <div>
+          <h3>Analista de Testes Sênior</h3>
+          <div class="job-company">Raízen</div>
+        </div>
+        <div class="job-meta">
+          <span class="status done">CONCLUÍDO</span>
+          <span class="job-dates">Set. 2021 — Set. 2022 <span class="job-toggle">＋</span></span>
+        </div>
+      </div>
+      <div class="job-body">
+        <ul>
+          <li>Automação de cenários de teste utilizando C#.</li>
+          <li>Criação de scripts BDD e dados de teste automatizados.</li>
+          <li>Implementação de ferramentas e processos de QA com Jira/QAlity.</li>
+          <li>Automação de testes mobile utilizando Appium.</li>
+          <li>Apoio nas atividades de testes funcionais e de regressão.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="job">
+      <div class="job-head" role="button" tabindex="0">
+        <div>
+          <h3>Analista de Testes Sênior</h3>
+          <div class="job-company">Ouro Verde Locação e Serviços Ltda. (Reunidas)</div>
+        </div>
+        <div class="job-meta">
+          <span class="status done">CONCLUÍDO</span>
+          <span class="job-dates">Out. 2019 — Set. 2021 <span class="job-toggle">＋</span></span>
+        </div>
+      </div>
+      <div class="job-body">
+        <ul>
+          <li>Validação de cenários de teste em ambientes QA/UAT.</li>
+          <li>Criação de cenários de teste utilizando Jira.</li>
+          <li>Análise de documentação técnica e funcional.</li>
+          <li>Registro de defeitos e solicitações.</li>
+          <li>Criação de dados de teste e manuais de teste.</li>
+          <li>Apoio em atividades de UAT e homologação.</li>
+          <li>Análise de impacto em produção.</li>
+          <li>Desenvolvimento de testes automatizados com C# e Cypress; automação mobile com Jest.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="habilidades">
+    <p class="sec-label">// habilidades</p>
+    <h2 class="sec-title">Habilidades técnicas</h2>
+
+    <div class="skill-group">
+      <p class="skill-group-label">Testes de software</p>
+      <div class="tags">
+        <span class="tag">Manuais</span><span class="tag">Funcionais</span><span class="tag">Regressão</span>
+        <span class="tag">Integração</span><span class="tag">API</span><span class="tag">Web</span>
+        <span class="tag">Mobile</span><span class="tag">Backend</span><span class="tag">Performance</span>
+        <span class="tag">Segurança</span><span class="tag">Usabilidade</span><span class="tag">BDD</span>
+      </div>
+    </div>
+
+    <div class="skill-group">
+      <p class="skill-group-label">Automação</p>
+      <div class="tags">
+        <span class="tag">Robot Framework</span><span class="tag">Cypress</span><span class="tag">Playwright</span>
+        <span class="tag">Selenium</span><span class="tag">Appium</span><span class="tag">Jest</span>
+      </div>
+    </div>
+
+    <div class="skill-group">
+      <p class="skill-group-label">Programação</p>
+      <div class="tags">
+        <span class="tag">Java</span><span class="tag">C#</span><span class="tag">Python</span>
+        <span class="tag">JavaScript</span><span class="tag">TypeScript</span>
+      </div>
+    </div>
+
+    <div class="skill-group">
+      <p class="skill-group-label">Ferramentas</p>
+      <div class="tags">
+        <span class="tag">Postman</span><span class="tag">Swagger</span><span class="tag">Azure</span>
+        <span class="tag">Jira</span><span class="tag">Quality Center</span><span class="tag">ALM</span>
+        <span class="tag">Visual Studio</span><span class="tag">Eclipse</span><span class="tag">Git</span>
+        <span class="tag">Jenkins</span><span class="tag">GitLab CI/CD</span>
+      </div>
+    </div>
+
+    <div class="skill-group">
+      <p class="skill-group-label">Cloud, infraestrutura e dados</p>
+      <div class="tags">
+        <span class="tag">AWS</span><span class="tag">Docker Compose</span><span class="tag">PostgreSQL</span>
+      </div>
+    </div>
+
+    <div class="skill-group">
+      <p class="skill-group-label">Salesforce</p>
+      <div class="tags">
+        <span class="tag">Testes Salesforce</span><span class="tag">Administração</span>
+        <span class="tag">Configuração</span><span class="tag">ADM201</span>
+      </div>
+    </div>
+
+    <div class="soft-skills">
+      <strong>Habilidades profissionais —</strong> pensamento analítico, resolução de problemas, comunicação, colaboração,
+      trabalho em equipe, adaptabilidade, proatividade, foco no cliente, autogerenciamento, aprendizado rápido e flexibilidade.
+    </div>
+  </section>
+
+  <section id="formacao">
+    <p class="sec-label">// formação</p>
+    <h2 class="sec-title">Formação, cursos e idiomas</h2>
+
+    <div class="grid-2">
+      <div>
+        <div class="edu-item">
+          <h4>Bacharelado em Análise e Desenvolvimento de Sistemas</h4>
+          <p>UNINTER — concluído em 2020</p>
+        </div>
+
+        <p class="skill-group-label" style="margin-top:22px;">Idiomas</p>
+        <div class="langs">
+          <div class="lang">Português<span class="lvl">nativo</span></div>
+          <div class="lang">Inglês<span class="lvl">intermediário</span></div>
+          <div class="lang">Francês<span class="lvl">básico</span></div>
+        </div>
+      </div>
+
+      <div>
+        <p class="skill-group-label">Cursos e certificações</p>
+        <ul class="courses-list">
+          <li>Salesforce ADM201</li>
+          <li>PostgreSQL — Intermediário</li>
+          <li>Postman — Avançado</li>
+          <li>Testes de Software e Ferramentas de QA</li>
+          <li>Selenium, JUnit, TestNG, Cucumber</li>
+          <li>Git e Integração Contínua — Jenkins / GitLab CI/CD</li>
+          <li>Metodologias Ágeis</li>
+          <li>Ciclo de Vida de Desenvolvimento de Software (SDLC)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="contato">
+    <p class="sec-label">// contato</p>
+    <h2 class="sec-title">Vamos conversar</h2>
+    <div class="contact-card">
+      <p>Aberto a novas oportunidades em QA e automação de testes. Respondo por e-mail, telefone ou LinkedIn.</p>
+      <div class="btn-row">
+        <a class="btn" href="mailto:paulocabral_90@hotmail.com">E-mail</a>
+        <a class="btn ghost" href="https://linkedin.com/in/paulo-cabral-qasenior" target="_blank" rel="noopener">LinkedIn</a>
+        <a class="btn ghost" href="https://github.com/PauloCabralGit" target="_blank" rel="noopener">GitHub</a>
+        <a class="btn ghost" href="Paulo_Cabral_Curriculo.pdf" target="_blank" rel="noopener">Baixar currículo</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>© 2026 Paulo Cabral</span>
+    <span>São José dos Pinhais, PR — Brasil</span>
+  </footer>
+
+</div>
+
+<script>
+  // mobile nav toggle
+  document.getElementById('navToggle').addEventListener('click', function(){
+    document.getElementById('topnav').classList.toggle('open');
+  });
+  document.querySelectorAll('#topnav a').forEach(function(a){
+    a.addEventListener('click', function(){ document.getElementById('topnav').classList.remove('open'); });
+  });
+
+  // job accordion
+  document.querySelectorAll('.job-head').forEach(function(head){
+    function toggle(){ head.parentElement.classList.toggle('open'); }
+    head.addEventListener('click', toggle);
+    head.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle(); }
+    });
+  });
+</script>
+
+</body>
+</html>
