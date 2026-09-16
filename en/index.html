@@ -1,4 +1,4 @@
-en/index.html (EN) — click inside the box below, then Ctrl+A, Ctrl+C
+en/index.html (EN) v2 — click inside the box below, then Ctrl+A, Ctrl+C
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1259,14 +1259,23 @@ document.querySelectorAll('.job-head').forEach(function(head){
     function scheduleNext(anyActive){
       if(timer) clearTimeout(timer);
       timer = null;
-      // Keep polling in the background only while the panel is actually
-      // open — no point spending API budget refreshing a collapsed panel
-      // nobody is looking at.
-      if(!isOpen()) return;
+      // While a run is actually in progress, keep polling even if the panel
+      // is collapsed — otherwise a closed panel takes one snapshot mid-run
+      // (e.g. stuck showing "Install dependencies") and never updates again
+      // until the user happens to open it or click refresh, even though the
+      // real run on GitHub finished long ago. Once things go idle (the last
+      // known run is completed), only keep the slow heartbeat going for a
+      // panel that's actually open, to catch a future run without wasting
+      // API budget on panels nobody is looking at.
+      if(!anyActive && !isOpen()) return;
       timer = setTimeout(load, anyActive ? 12000 : 90000);
     }
 
     var lastRunId = null;
+    var lastAnyActive = false; // tracks the last known run state, so a transient
+                               // fetch error during an active run doesn't fall back to
+                               // the slow/idle poll cadence and make a collapsed panel
+                               // look stuck again.
 
     function load(){
       if(busy){ pending = true; return; }
@@ -1292,6 +1301,7 @@ document.querySelectorAll('.job-head').forEach(function(head){
           var anyActive = runs[0].status !== 'completed';
           var runChanged = runs[0].id !== lastRunId;
           lastRunId = runs[0].id;
+          lastAnyActive = anyActive;
           // Steps don't change once a run is completed and unchanged since the
           // last check, so skip the extra request and just keep polling less
           // often — this is most of the API budget savings.
@@ -1315,7 +1325,7 @@ document.querySelectorAll('.job-head').forEach(function(head){
           } else {
             setError(err && err.message === 'no workflow runs found yet.' ? err.message : 'could not load data right now — please try again shortly.');
           }
-          scheduleNext(false);
+          scheduleNext(lastAnyActive);
         })
         .then(function(){
           busy = false;
@@ -1327,7 +1337,7 @@ document.querySelectorAll('.job-head').forEach(function(head){
     function toggle(){
       var open = tool.classList.toggle('open');
       head.setAttribute('aria-expanded', open ? 'true' : 'false');
-      if(open) load(); else scheduleNext(false);
+      if(open) load(); else scheduleNext(lastAnyActive);
     }
     head.addEventListener('click', toggle);
     head.addEventListener('keydown', function(e){
