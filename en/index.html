@@ -300,28 +300,44 @@ h1.name{
 .run-error{ padding: 10px 16px; font-size:13.5px; color: var(--ink-soft); }
 
 /* ---------- CI live widget ---------- */
-.ci-card{
+.ci-tools{ display:flex; flex-direction:column; gap:16px; }
+.ci-tool{
   border: 1px solid var(--panel-line);
   background: var(--panel);
   border-radius: 8px;
-  padding: 18px 18px 6px;
   box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: border-color 0.2s ease;
 }
-.ci-top{
-  display:flex; align-items:flex-start; justify-content:space-between;
-  flex-wrap:wrap; gap: 14px; margin-bottom: 10px;
+.ci-tool:hover{ border-color: var(--pass); }
+.ci-tool-head{
+  display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+  padding: 16px 18px;
+  cursor:pointer; user-select:none;
 }
+.ci-tool-head h3{ margin:0 0 4px; font-size:16px; font-weight:600; }
+.ci-tool-sub{ font-size:13px; color:var(--ink-soft); font-family:'IBM Plex Mono',monospace; }
+.ci-tool-right{ display:flex; align-items:center; gap:10px; flex-shrink:0; }
+.ci-tool-toggle{
+  font-family:'IBM Plex Mono', monospace; color:var(--ink-soft); font-size:16px;
+  display:inline-block; transition: transform 0.2s ease;
+}
+.ci-tool.open .ci-tool-toggle{ transform: rotate(45deg); }
+.ci-tool-body{ max-height:0; overflow:hidden; transition: max-height 0.32s ease; }
+.ci-tool.open .ci-tool-body{ max-height: 2400px; }
+.ci-tool-inner{ padding: 16px 18px 18px; border-top: 1px solid var(--panel-line); }
 .ci-meta{
   font-family:'IBM Plex Mono', monospace; font-size: 12.5px; color: var(--ink-soft);
-  margin-top: 8px;
+  margin: 0 0 14px;
 }
-.ci-actions{ display:flex; gap: 8px; flex-wrap:wrap; }
+.ci-actions{ display:flex; gap: 8px; flex-wrap:wrap; margin-bottom: 14px; }
 .ci-actions .btn, .ci-actions .btn.ghost{ padding: 8px 13px; font-size: 12.5px; }
 .ci-hint{ font-size: 12.5px; color: var(--ink-soft); margin: 0 0 18px; }
 .ci-job-title{
   font-family:'IBM Plex Mono', monospace; font-size: 13px; color: var(--ink-soft);
   margin: 0 0 8px;
 }
+@media (prefers-reduced-motion: reduce){ .ci-tool-body{ transition:none; } .ci-tool-toggle{ transition:none; } }
 
 /* ---------- Section shell ---------- */
 section{ padding: 46px 0; border-top: 1px solid var(--rule); scroll-margin-top: 70px; }
@@ -803,37 +819,45 @@ footer a:hover{ color: var(--pass); border-color: var(--pass); }
 
 <section id="automacao" class="reveal">
   <p class="sec-label">// automation</p>
-  <h2 class="sec-title">Live CI — Robot Framework</h2>
+  <h2 class="sec-title">Live CI</h2>
   <p class="lede">
-    Automated test suite (API + browser) for the
-    <a href="https://github.com/PauloCabralGit/TestesRobotFramework" target="_blank" rel="noopener">TestesRobotFramework</a>
-    project, running on GitHub Actions. The data below comes straight from GitHub's public API and refreshes itself.
+    Each panel below shows the live execution of an automated test suite on GitHub Actions — real data, straight
+    from GitHub's public API. Click a panel's header to expand or collapse it.
   </p>
 
-  <div class="ci-card">
-    <div class="ci-top">
-      <div>
-        <span class="status running" id="ciOverallStatus"><span class="dot"></span>loading…</span>
-        <div class="ci-meta" id="ciOverallMeta">fetching the latest run…</div>
+  <div class="ci-tools">
+    <div class="ci-tool open" data-owner="PauloCabralGit" data-repo="TestesRobotFramework" data-workflow="robot-tests.yml">
+      <div class="ci-tool-head" role="button" tabindex="0" aria-expanded="true">
+        <div>
+          <h3>Robot Framework</h3>
+          <div class="ci-tool-sub">TestesRobotFramework · API + Cadastro (Browser)</div>
+        </div>
+        <div class="ci-tool-right">
+          <span class="status running js-ci-status"><span class="dot"></span>loading…</span>
+          <span class="ci-tool-toggle">＋</span>
+        </div>
       </div>
-      <div class="ci-actions">
-        <a class="btn ghost" id="ciRefreshBtn" href="#" role="button">↻ refresh</a>
-        <a class="btn ghost" href="https://github.com/PauloCabralGit/TestesRobotFramework/actions" target="_blank" rel="noopener">view on GitHub</a>
-        <a class="btn" href="https://github.com/PauloCabralGit/TestesRobotFramework/actions/workflows/robot-tests.yml" target="_blank" rel="noopener">▶ run workflow</a>
+      <div class="ci-tool-body">
+        <div class="ci-tool-inner">
+          <div class="ci-meta js-ci-meta">fetching the latest run…</div>
+          <div class="ci-actions">
+            <a class="btn ghost js-ci-refresh" href="#" role="button">↻ refresh</a>
+            <a class="btn ghost js-ci-view" href="#" target="_blank" rel="noopener">view on GitHub</a>
+            <a class="btn js-ci-run" href="#" target="_blank" rel="noopener">▶ run workflow</a>
+          </div>
+          <p class="ci-hint">The "run workflow" button opens GitHub Actions — triggering a run requires being signed in with collaborator access to the repository.</p>
+          <div class="js-ci-jobs"></div>
+          <div class="run" style="margin-bottom:0;">
+            <div class="run-head">
+              <span>history — latest runs</span>
+              <span class="ok js-ci-history-count"></span>
+            </div>
+            <ul class="run-list js-ci-history">
+              <li><span class="desc">loading…</span></li>
+            </ul>
+          </div>
+        </div>
       </div>
-    </div>
-    <p class="ci-hint">The "run workflow" button opens GitHub Actions — triggering a run requires being signed in with collaborator access to the repository.</p>
-
-    <div id="ciJobs"></div>
-
-    <div class="run" style="margin-bottom:16px;">
-      <div class="run-head">
-        <span>history — latest runs</span>
-        <span class="ok" id="ciHistoryCount"></span>
-      </div>
-      <ul class="run-list" id="ciHistoryList">
-        <li><span class="desc">loading…</span></li>
-      </ul>
     </div>
   </div>
 </section>
@@ -982,23 +1006,13 @@ document.querySelectorAll('.job-head').forEach(function(head){
   });
 })();
 
-// CI live widget — pulls real GitHub Actions data for TestesRobotFramework
+// CI live widget — one or more collapsible ".ci-tool" panels, each pulling
+// real GitHub Actions data for the repo/workflow set on its data-* attributes.
+// To add another tool (Playwright, Cypress, ...), duplicate a ".ci-tool" block
+// in the HTML with new data-owner / data-repo / data-workflow values — this
+// script auto-initializes every ".ci-tool" it finds, no JS changes needed.
 (function(){
-  var OWNER = 'PauloCabralGit';
-  var REPO = 'TestesRobotFramework';
-  var WORKFLOW = 'robot-tests.yml';
-  var API = 'https://api.github.com/repos/' + OWNER + '/' + REPO;
-
-  var elStatus = document.getElementById('ciOverallStatus');
-  var elMeta = document.getElementById('ciOverallMeta');
-  var elJobs = document.getElementById('ciJobs');
-  var elHistory = document.getElementById('ciHistoryList');
-  var elHistoryCount = document.getElementById('ciHistoryCount');
-  var elRefresh = document.getElementById('ciRefreshBtn');
-  if(!elStatus || typeof fetch === 'undefined') return;
-
-  var timer = null;
-  var busy = false;
+  if(typeof fetch === 'undefined') return;
 
   function fmtRelative(iso){
     var diff = (Date.now() - new Date(iso).getTime()) / 1000;
@@ -1038,130 +1052,170 @@ document.querySelectorAll('.job-head').forEach(function(head){
     return { chk: '✗', cls: 'fail' };
   }
 
-  function renderJobs(jobs){
-    elJobs.innerHTML = '';
-    jobs.forEach(function(job){
-      var title = document.createElement('p');
-      title.className = 'ci-job-title';
-      title.textContent = job.name + ' — ' + conclusionLabel(job.status, job.conclusion);
-      elJobs.appendChild(title);
+  function initCiTool(tool){
+    var owner = tool.getAttribute('data-owner');
+    var repo = tool.getAttribute('data-repo');
+    var workflow = tool.getAttribute('data-workflow');
+    var api = 'https://api.github.com/repos/' + owner + '/' + repo;
 
-      var run = document.createElement('div');
-      run.className = 'run';
-      run.style.marginBottom = '16px';
+    var head = tool.querySelector('.ci-tool-head');
+    var elStatus = tool.querySelector('.js-ci-status');
+    var elMeta = tool.querySelector('.js-ci-meta');
+    var elJobs = tool.querySelector('.js-ci-jobs');
+    var elHistory = tool.querySelector('.js-ci-history');
+    var elHistoryCount = tool.querySelector('.js-ci-history-count');
+    var elRefresh = tool.querySelector('.js-ci-refresh');
+    var elView = tool.querySelector('.js-ci-view');
+    var elRun = tool.querySelector('.js-ci-run');
+    if(!owner || !repo || !workflow || !elStatus) return;
 
-      var head = document.createElement('div');
-      head.className = 'run-head';
-      var left = document.createElement('span');
-      left.textContent = 'steps';
-      var right = document.createElement('span');
-      right.className = statusClass(job.status, job.conclusion) === 'fail' ? '' : 'ok';
-      right.textContent = fmtDuration(job.started_at, job.completed_at) || '—';
-      head.appendChild(left);
-      head.appendChild(right);
-      run.appendChild(head);
+    elView.href = 'https://github.com/' + owner + '/' + repo + '/actions';
+    elRun.href = 'https://github.com/' + owner + '/' + repo + '/actions/workflows/' + workflow;
 
-      var ul = document.createElement('ul');
-      ul.className = 'run-list';
-      (job.steps || []).forEach(function(step){
-        var g = stepGlyph(step);
+    var timer = null;
+    var busy = false;
+
+    function isOpen(){ return tool.classList.contains('open'); }
+
+    function renderJobs(jobs){
+      elJobs.innerHTML = '';
+      jobs.forEach(function(job){
+        var title = document.createElement('p');
+        title.className = 'ci-job-title';
+        title.textContent = job.name + ' — ' + conclusionLabel(job.status, job.conclusion);
+        elJobs.appendChild(title);
+
+        var run = document.createElement('div');
+        run.className = 'run';
+        run.style.marginBottom = '16px';
+
+        var jHead = document.createElement('div');
+        jHead.className = 'run-head';
+        var left = document.createElement('span');
+        left.textContent = 'steps';
+        var right = document.createElement('span');
+        right.className = statusClass(job.status, job.conclusion) === 'fail' ? '' : 'ok';
+        right.textContent = fmtDuration(job.started_at, job.completed_at) || '—';
+        jHead.appendChild(left);
+        jHead.appendChild(right);
+        run.appendChild(jHead);
+
+        var ul = document.createElement('ul');
+        ul.className = 'run-list';
+        (job.steps || []).forEach(function(step){
+          var g = stepGlyph(step);
+          var li = document.createElement('li');
+          var chk = document.createElement('span');
+          chk.className = 'chk' + (g.cls ? ' ' + g.cls : '');
+          chk.textContent = g.chk;
+          var desc = document.createElement('span');
+          desc.className = 'desc';
+          desc.textContent = step.name;
+          var val = document.createElement('span');
+          val.className = 'val';
+          val.textContent = fmtDuration(step.started_at, step.completed_at);
+          li.appendChild(chk);
+          li.appendChild(desc);
+          li.appendChild(val);
+          ul.appendChild(li);
+        });
+        run.appendChild(ul);
+        elJobs.appendChild(run);
+      });
+    }
+
+    function renderHistory(runs){
+      elHistory.innerHTML = '';
+      elHistoryCount.textContent = runs.length ? ('last ' + runs.length) : '';
+      runs.forEach(function(run){
         var li = document.createElement('li');
+        var a = document.createElement('a');
+        a.className = 'run-link';
+        a.href = run.html_url;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        var cls = statusClass(run.status, run.conclusion);
         var chk = document.createElement('span');
-        chk.className = 'chk' + (g.cls ? ' ' + g.cls : '');
-        chk.textContent = g.chk;
+        chk.className = 'chk' + (cls === 'fail' ? ' fail' : cls === 'running' ? ' running' : '');
+        chk.textContent = cls === 'fail' ? '✗' : cls === 'running' ? '●' : '✓';
         var desc = document.createElement('span');
         desc.className = 'desc';
-        desc.textContent = step.name;
+        var msg = (run.display_title || (run.head_commit && run.head_commit.message) || run.name || '').split('\n')[0];
+        desc.textContent = '#' + run.run_number + ' — ' + (msg.length > 60 ? msg.slice(0, 57) + '…' : msg);
         var val = document.createElement('span');
         val.className = 'val';
-        val.textContent = fmtDuration(step.started_at, step.completed_at);
-        li.appendChild(chk);
-        li.appendChild(desc);
-        li.appendChild(val);
-        ul.appendChild(li);
+        val.textContent = fmtRelative(run.created_at);
+        a.appendChild(chk);
+        a.appendChild(desc);
+        a.appendChild(val);
+        li.appendChild(a);
+        elHistory.appendChild(li);
       });
-      run.appendChild(ul);
-      elJobs.appendChild(run);
-    });
-  }
-
-  function renderHistory(runs){
-    elHistory.innerHTML = '';
-    elHistoryCount.textContent = runs.length ? ('last ' + runs.length) : '';
-    runs.forEach(function(run){
-      var li = document.createElement('li');
-      var a = document.createElement('a');
-      a.className = 'run-link';
-      a.href = run.html_url;
-      a.target = '_blank';
-      a.rel = 'noopener';
-      var cls = statusClass(run.status, run.conclusion);
-      var chk = document.createElement('span');
-      chk.className = 'chk' + (cls === 'fail' ? ' fail' : cls === 'running' ? ' running' : '');
-      chk.textContent = cls === 'fail' ? '✗' : cls === 'running' ? '●' : '✓';
-      var desc = document.createElement('span');
-      desc.className = 'desc';
-      var msg = (run.display_title || (run.head_commit && run.head_commit.message) || run.name || '').split('\n')[0];
-      desc.textContent = '#' + run.run_number + ' — ' + (msg.length > 60 ? msg.slice(0, 57) + '…' : msg);
-      var val = document.createElement('span');
-      val.className = 'val';
-      val.textContent = fmtRelative(run.created_at);
-      a.appendChild(chk);
-      a.appendChild(desc);
-      a.appendChild(val);
-      li.appendChild(a);
-      elHistory.appendChild(li);
-    });
-  }
-
-  function setOverall(run){
-    var cls = statusClass(run.status, run.conclusion);
-    elStatus.className = 'status ' + cls;
-    elStatus.innerHTML = '<span class="dot"></span>' + conclusionLabel(run.status, run.conclusion);
-    var meta = 'branch ' + run.head_branch + ' · #' + run.run_number + ' · ' + fmtRelative(run.created_at);
-    if(run.status === 'completed'){
-      var dur = fmtDuration(run.run_started_at, run.updated_at);
-      if(dur) meta += ' · ' + dur;
     }
-    elMeta.textContent = meta;
+
+    function setOverall(run){
+      var cls = statusClass(run.status, run.conclusion);
+      elStatus.className = 'status js-ci-status ' + cls;
+      elStatus.innerHTML = '<span class="dot"></span>' + conclusionLabel(run.status, run.conclusion);
+      var meta = 'branch ' + run.head_branch + ' · #' + run.run_number + ' · ' + fmtRelative(run.created_at);
+      if(run.status === 'completed'){
+        var dur = fmtDuration(run.run_started_at, run.updated_at);
+        if(dur) meta += ' · ' + dur;
+      }
+      elMeta.textContent = meta;
+    }
+
+    function scheduleNext(anyActive){
+      if(timer) clearTimeout(timer);
+      timer = null;
+      if(!isOpen()) return;
+      timer = setTimeout(load, anyActive ? 12000 : 45000);
+    }
+
+    function load(){
+      if(busy || !isOpen()) return;
+      busy = true;
+      fetch(api + '/actions/workflows/' + workflow + '/runs?per_page=6')
+        .then(function(r){
+          if(!r.ok) throw new Error('http ' + r.status);
+          return r.json();
+        })
+        .then(function(data){
+          var runs = data.workflow_runs || [];
+          if(!runs.length) throw new Error('no runs');
+          renderHistory(runs);
+          setOverall(runs[0]);
+          var anyActive = runs[0].status !== 'completed';
+          return fetch(api + '/actions/runs/' + runs[0].id + '/jobs')
+            .then(function(r){ return r.ok ? r.json() : { jobs: [] }; })
+            .then(function(jd){
+              renderJobs(jd.jobs || []);
+              scheduleNext(anyActive);
+            });
+        })
+        .catch(function(){
+          elMeta.textContent = 'could not load data right now — please try again shortly.';
+          scheduleNext(false);
+        })
+        .then(function(){ busy = false; });
+    }
+
+    function toggle(){
+      var open = tool.classList.toggle('open');
+      head.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if(open) load(); else scheduleNext(false);
+    }
+    head.addEventListener('click', toggle);
+    head.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle(); }
+    });
+    elRefresh.addEventListener('click', function(e){ e.preventDefault(); load(); });
+    document.addEventListener('visibilitychange', function(){ if(!document.hidden) load(); });
+
+    if(isOpen()) load();
   }
 
-  function scheduleNext(anyActive){
-    if(timer) clearTimeout(timer);
-    timer = setTimeout(load, anyActive ? 12000 : 45000);
-  }
-
-  function load(){
-    if(busy) return;
-    busy = true;
-    fetch(API + '/actions/workflows/' + WORKFLOW + '/runs?per_page=6')
-      .then(function(r){
-        if(!r.ok) throw new Error('http ' + r.status);
-        return r.json();
-      })
-      .then(function(data){
-        var runs = data.workflow_runs || [];
-        if(!runs.length) throw new Error('no runs');
-        renderHistory(runs);
-        setOverall(runs[0]);
-        var anyActive = runs[0].status !== 'completed';
-        return fetch(API + '/actions/runs/' + runs[0].id + '/jobs')
-          .then(function(r){ return r.ok ? r.json() : { jobs: [] }; })
-          .then(function(jd){
-            renderJobs(jd.jobs || []);
-            scheduleNext(anyActive);
-          });
-      })
-      .catch(function(){
-        elMeta.textContent = 'could not load data right now — please try again shortly.';
-        scheduleNext(false);
-      })
-      .then(function(){ busy = false; });
-  }
-
-  elRefresh.addEventListener('click', function(e){ e.preventDefault(); load(); });
-  document.addEventListener('visibilitychange', function(){ if(!document.hidden) load(); });
-  load();
+  document.querySelectorAll('.ci-tool').forEach(initCiTool);
 })();
 </script>
 
