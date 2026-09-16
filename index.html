@@ -394,6 +394,8 @@ section{ padding: 46px 0; border-top: 1px solid var(--rule); scroll-margin-top: 
 .status.done{ color: var(--pass); background: var(--pass-soft); }
 .status.running{ color: var(--running); background: var(--running-soft); }
 .status.fail{ color: var(--fail); background: var(--fail-soft); }
+.status.unknown{ color: var(--ink-soft); background: var(--panel-line); }
+.status.unknown .dot{ animation: none; }
 .status .dot{
   width:6px; height:6px; border-radius:50%;
   background: currentColor;
@@ -1233,19 +1235,35 @@ document.querySelectorAll('.job-head').forEach(function(head){
       elMeta.textContent = meta;
     }
 
+    // On a fetch failure, reflect it in the status pill too (not just the meta
+    // line) so a stalled panel never looks stuck on "loading" forever.
+    function setError(msg){
+      elStatus.className = 'status js-ci-status unknown';
+      elStatus.innerHTML = '<span class="dot"></span>indisponível';
+      elMeta.textContent = msg;
+    }
+
     function scheduleNext(anyActive){
       if(timer) clearTimeout(timer);
       timer = null;
       if(!isOpen()) return;
-      timer = setTimeout(load, anyActive ? 12000 : 45000);
+      timer = setTimeout(load, anyActive ? 12000 : 90000);
     }
+
+    var lastRunId = null;
 
     function load(){
       if(busy || !isOpen()) return;
       busy = true;
       fetch(api + '/actions/workflows/' + workflow + '/runs?per_page=6')
         .then(function(r){
-          if(!r.ok) throw new Error('http ' + r.status);
+          if(!r.ok){
+            var err = new Error('http ' + r.status);
+            if(r.headers.get('x-ratelimit-remaining') === '0'){
+              err.rateLimitReset = parseInt(r.headers.get('x-ratelimit-reset'), 10) * 1000;
+            }
+            throw err;
+          }
           return r.json();
         })
         .then(function(data){
@@ -1254,6 +1272,15 @@ document.querySelectorAll('.job-head').forEach(function(head){
           renderHistory(runs);
           setOverall(runs[0]);
           var anyActive = runs[0].status !== 'completed';
+          var runChanged = runs[0].id !== lastRunId;
+          lastRunId = runs[0].id;
+          // Steps don't change once a run is completed and unchanged since the
+          // last check, so skip the extra request and just keep polling less
+          // often — this is most of the API budget savings.
+          if(!anyActive && !runChanged){
+            scheduleNext(false);
+            return;
+          }
           return fetch(api + '/actions/runs/' + runs[0].id + '/jobs')
             .then(function(r){ return r.ok ? r.json() : { jobs: [] }; })
             .then(function(jd){
@@ -1261,8 +1288,15 @@ document.querySelectorAll('.job-head').forEach(function(head){
               scheduleNext(anyActive);
             });
         })
-        .catch(function(){
-          elMeta.textContent = 'não foi possível carregar agora — tente novamente em instantes.';
+        .catch(function(err){
+          if(err && err.rateLimitReset){
+            var d = new Date(err.rateLimitReset);
+            var hh = String(d.getHours()).padStart(2, '0');
+            var mm = String(d.getMinutes()).padStart(2, '0');
+            setError('limite de requisições da API do GitHub atingido — tenta de novo às ' + hh + ':' + mm + '.');
+          } else {
+            setError('não foi possível carregar agora — tente novamente em instantes.');
+          }
           scheduleNext(false);
         })
         .then(function(){ busy = false; });
