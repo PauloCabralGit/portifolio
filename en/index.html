@@ -1132,7 +1132,7 @@ document.querySelectorAll('.job-head').forEach(function(head){
   }
 
   function load(){
-    if(busy || document.hidden) { scheduleNext(false); return; }
+    if(busy) return;
     busy = true;
     fetch(API + '/actions/workflows/' + WORKFLOW + '/runs?per_page=6')
       .then(function(r){
