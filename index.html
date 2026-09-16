@@ -332,6 +332,7 @@ h1.name{
 }
 .ci-actions{ display:flex; gap: 8px; flex-wrap:wrap; margin-bottom: 14px; }
 .ci-actions .btn, .ci-actions .btn.ghost{ padding: 8px 13px; font-size: 12.5px; }
+.js-ci-refresh.is-loading{ opacity:.5; pointer-events:none; }
 .ci-hint{ font-size: 12.5px; color: var(--ink-soft); margin: 0 0 18px; }
 .ci-job-title{
   font-family:'IBM Plex Mono', monospace; font-size: 13px; color: var(--ink-soft);
@@ -1086,10 +1087,10 @@ document.querySelectorAll('.job-head').forEach(function(head){
 
   function fmtRelative(iso){
     var diff = (Date.now() - new Date(iso).getTime()) / 1000;
-    if(diff < 60) return 'agora mesmo';
-    if(diff < 3600) return Math.floor(diff / 60) + ' min atrás';
-    if(diff < 86400) return Math.floor(diff / 3600) + ' h atrás';
-    return Math.floor(diff / 86400) + ' d atrás';
+    if(diff < 60) return 'just now';
+    if(diff < 3600) return Math.floor(diff / 60) + ' min ago';
+    if(diff < 86400) return Math.floor(diff / 3600) + ' h ago';
+    return Math.floor(diff / 86400) + ' d ago';
   }
   function fmtDuration(startIso, endIso){
     if(!startIso || !endIso) return '';
@@ -1098,13 +1099,13 @@ document.querySelectorAll('.job-head').forEach(function(head){
     return Math.floor(s / 60) + 'm ' + Math.round(s % 60) + 's';
   }
   function conclusionLabel(status, conclusion){
-    if(status !== 'completed') return status === 'in_progress' ? 'em andamento' : 'na fila';
+    if(status !== 'completed') return status === 'in_progress' ? 'in progress' : 'queued';
     switch(conclusion){
-      case 'success': return 'sucesso';
-      case 'failure': return 'falhou';
-      case 'cancelled': return 'cancelado';
-      case 'skipped': return 'ignorado';
-      default: return conclusion || 'desconhecido';
+      case 'success': return 'success';
+      case 'failure': return 'failed';
+      case 'cancelled': return 'cancelled';
+      case 'skipped': return 'skipped';
+      default: return conclusion || 'unknown';
     }
   }
   function statusClass(status, conclusion){
@@ -1144,6 +1145,8 @@ document.querySelectorAll('.job-head').forEach(function(head){
 
     var timer = null;
     var busy = false;
+    var pending = false;   // a refresh was requested while one was already in flight
+    var everLoaded = false; // becomes true once real data has rendered at least once
 
     function isOpen(){ return tool.classList.contains('open'); }
 
@@ -1196,7 +1199,7 @@ document.querySelectorAll('.job-head').forEach(function(head){
 
     function renderHistory(runs){
       elHistory.innerHTML = '';
-      elHistoryCount.textContent = runs.length ? ('últimas ' + runs.length) : '';
+      elHistoryCount.textContent = runs.length ? ('last ' + runs.length) : '';
       runs.forEach(function(run){
         var li = document.createElement('li');
         var a = document.createElement('a');
@@ -1235,17 +1238,29 @@ document.querySelectorAll('.job-head').forEach(function(head){
       elMeta.textContent = meta;
     }
 
-    // On a fetch failure, reflect it in the status pill too (not just the meta
-    // line) so a stalled panel never looks stuck on "loading" forever.
+    // On a fetch failure, reflect it everywhere the stale "loading…"
+    // placeholder was showing — not just the status pill — so a panel never
+    // ends up stuck half updated (pill says "unavailable" while the steps
+    // below still say "loading…"). A transient failure on a LATER poll,
+    // once real data has already rendered once, leaves that data alone
+    // instead of wiping it out.
     function setError(msg){
       elStatus.className = 'status js-ci-status unknown';
-      elStatus.innerHTML = '<span class="dot"></span>indisponível';
+      elStatus.innerHTML = '<span class="dot"></span>unavailable';
       elMeta.textContent = msg;
+      if(!everLoaded){
+        elJobs.innerHTML = '<p class="ci-job-title">could not load run details.</p>';
+        elHistory.innerHTML = '';
+        elHistoryCount.textContent = '';
+      }
     }
 
     function scheduleNext(anyActive){
       if(timer) clearTimeout(timer);
       timer = null;
+      // Keep polling in the background only while the panel is actually
+      // open — no point spending API budget refreshing a collapsed panel
+      // nobody is looking at.
       if(!isOpen()) return;
       timer = setTimeout(load, anyActive ? 12000 : 90000);
     }
@@ -1253,8 +1268,9 @@ document.querySelectorAll('.job-head').forEach(function(head){
     var lastRunId = null;
 
     function load(){
-      if(busy || !isOpen()) return;
+      if(busy){ pending = true; return; }
       busy = true;
+      elRefresh.classList.add('is-loading');
       fetch(api + '/actions/workflows/' + workflow + '/runs?per_page=6')
         .then(function(r){
           if(!r.ok){
@@ -1268,9 +1284,10 @@ document.querySelectorAll('.job-head').forEach(function(head){
         })
         .then(function(data){
           var runs = data.workflow_runs || [];
-          if(!runs.length) throw new Error('sem execuções');
+          if(!runs.length) throw new Error('no workflow runs found yet.');
           renderHistory(runs);
           setOverall(runs[0]);
+          everLoaded = true;
           var anyActive = runs[0].status !== 'completed';
           var runChanged = runs[0].id !== lastRunId;
           lastRunId = runs[0].id;
@@ -1293,13 +1310,17 @@ document.querySelectorAll('.job-head').forEach(function(head){
             var d = new Date(err.rateLimitReset);
             var hh = String(d.getHours()).padStart(2, '0');
             var mm = String(d.getMinutes()).padStart(2, '0');
-            setError('limite de requisições da API do GitHub atingido — tenta de novo às ' + hh + ':' + mm + '.');
+            setError('GitHub API rate limit reached — try again at ' + hh + ':' + mm + '.');
           } else {
-            setError('não foi possível carregar agora — tente novamente em instantes.');
+            setError(err && err.message === 'no workflow runs found yet.' ? err.message : 'could not load data right now — please try again shortly.');
           }
           scheduleNext(false);
         })
-        .then(function(){ busy = false; });
+        .then(function(){
+          busy = false;
+          elRefresh.classList.remove('is-loading');
+          if(pending){ pending = false; load(); }
+        });
     }
 
     function toggle(){
@@ -1314,7 +1335,10 @@ document.querySelectorAll('.job-head').forEach(function(head){
     elRefresh.addEventListener('click', function(e){ e.preventDefault(); load(); });
     document.addEventListener('visibilitychange', function(){ if(!document.hidden) load(); });
 
-    if(isOpen()) load();
+    // Always fetch once on load, whether the panel starts open or collapsed,
+    // so every panel shows real data instead of sitting on the static
+    // "loading…" placeholder until the user happens to click it open.
+    load();
   }
 
   document.querySelectorAll('.ci-tool').forEach(initCiTool);
